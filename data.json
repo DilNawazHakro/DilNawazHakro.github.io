@@ -1,0 +1,58 @@
+{
+  "name": "Prof. Dr. Dil Nawaz Hakro",
+  "tagline": "Artificial Intelligence, Machine Learning, NLP and IoT Security",
+  "summary": "Researcher in artificial intelligence, machine learning and natural language processing, with particular depth in Sindhi and Urdu text processing, wireless and 5G/6G networks, computer vision and technology adoption. Senior Member of IEEE, Professional Member of ACM and HEC-approved supervisor.",
+  "roles": [
+    {
+      "title": "Assistant Professor",
+      "organization": "Department of Computing and Electronics Engineering, Middle East College, Muscat, Oman",
+      "period": "Current"
+    },
+    {
+      "title": "Professor (on lien)",
+      "organization": "Department of Software Engineering, University of Sindh, Jamshoro, Pakistan",
+      "period": "Current"
+    },
+    {
+      "title": "PhD Candidate",
+      "organization": "James Cook University, Australia (Islamic FinTech adoption readiness in Pakistan)",
+      "period": "2025 – 2026"
+    }
+  ],
+  "research_interests": [
+    "Artificial Intelligence and Machine Learning",
+    "Natural Language Processing (Sindhi, Urdu, multilingual)",
+    "Optical Character Recognition and Computer Vision",
+    "Wireless Sensor Networks, 5G/6G",
+    "IoT Security and Anomaly Detection",
+    "Islamic FinTech and Technology Adoption"
+  ],
+  "projects": [],
+  "metrics": {
+    "google_scholar": {
+      "citations": null,
+      "citations_since": null,
+      "since_year": null,
+      "h_index": null,
+      "i10_index": null,
+      "retrieved": null,
+      "url": null
+    },
+    "web_of_science": {
+      "total_documents": 74,
+      "indexed_publications": 32,
+      "core_collection_publications": 20,
+      "preprints": 3,
+      "non_indexed_publications": 42,
+      "verified_peer_reviews": 8,
+      "h_index": 6,
+      "times_cited": 68,
+      "citing_articles": 50,
+      "times_cited_without_self": 53,
+      "citing_articles_without_self": 41,
+      "retrieved": "2026-11-12",
+      "url": null
+    }
+  },
+  "links": []
+}
