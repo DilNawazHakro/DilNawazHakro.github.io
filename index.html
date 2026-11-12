@@ -110,6 +110,8 @@ ol.pubs a.doi{font-size:.85rem;font-weight:600}
 .cert .meta{font-size:.88rem;color:var(--muted)}
 .cert a.v{font-size:.9rem;font-weight:600}
 
+.thumb.contain{background:#fff;border-style:solid}
+.thumb.contain img{object-fit:contain}
 td.na{color:var(--muted);font-size:.9rem}
 footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
 @media (max-width:640px){
@@ -330,16 +332,16 @@ footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);f
 
   <section id="peer-review">
     <h2>Peer Review</h2>
-    <p class="lead">Reviewing record by venue. Titles and authors of manuscripts are not listed, in line with journal confidentiality.</p>
+    <p class="lead" id="prlead"></p>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>Journal or conference</th><th>Publisher</th><th>Reviews</th><th>Years</th><th>Evidence</th></tr></thead>
-        <tbody>
-          <tr><td><span class="ph">Venue name</span></td><td><span class="ph">Publisher</span></td><td class="num"><span class="ph">N</span></td><td><span class="ph">Years</span></td><td><span class="ph">Certificate or profile link</span></td></tr>
-          <tr><td><span class="ph">Venue name</span></td><td><span class="ph">Publisher</span></td><td class="num"><span class="ph">N</span></td><td><span class="ph">Years</span></td><td><span class="ph">Certificate or profile link</span></td></tr>
-        </tbody>
+        <thead><tr><th>Journal</th><th>Publisher</th><th>Reviews</th><th>Period</th><th>Certificates</th></tr></thead>
+        <tbody id="prbody"></tbody>
       </table>
     </div>
+    <p class="count" id="prorcid" style="margin:8px 0 0"></p>
+    <h3 style="margin:26px 0 12px">Reviewer certificates</h3>
+    <div class="grid" id="prgrid"></div>
   </section>
 
   <section id="certifications">
@@ -473,6 +475,87 @@ function loadAuto(){
   }
 }
 renderChips(); renderMetrics(); loadAuto();
+
+/* ---------- peer review ----------
+   To add a venue or certificate: append to PEER. Put the PDF in assets/peer-review/ and its thumbnail in assets/peer-review/thumbs/ (same name, .jpg). */
+var PR_DIR = "assets/peer-review/";
+var PEER = [
+  {journal:"Heliyon", publisher:"Elsevier", count:6, journals:1, period:"Apr to Sep 2026", certs:[
+    {label:"Sep 2026 (6 reviews)", base:"2026-09_Heliyon_6-reviews"},
+    {label:"Jun 2026 (5 reviews)", base:"2026-06_Heliyon_5-reviews"}]},
+  {journal:"Discover Computing", publisher:"Springer Nature", count:3, journals:1, period:"2026", certs:[
+    {label:"3 Nov 2026 (3 manuscripts)", base:"2026-11-03_Discover-Computing_3-manuscripts"},
+    {label:"30 Oct 2026 (2 manuscripts)", base:"2026-10-30_Discover-Computing_2-manuscripts"},
+    {label:"16 Jun 2026 (1 manuscript)", base:"2026-06-16_Discover-Computing_1-manuscript"}]},
+  {journal:"Applied Sciences, Mathematics, Future Internet", publisher:"MDPI", count:3, journals:3, period:"2026", certs:[
+    {label:"22 Oct 2026 (3 reviews)", base:"2026-10-22_MDPI_3-reviews"}]},
+  {journal:"Scientific Reports", publisher:"Springer Nature", count:2, journals:1, period:"2026", certs:[
+    {label:"8 Nov 2026 (2 manuscripts)", base:"2026-11-08_Scientific-Reports_2-manuscripts"},
+    {label:"7 Oct 2026 (1 manuscript)", base:"2026-10-07_Scientific-Reports_1-manuscript"}]},
+  {journal:"Discover Artificial Intelligence", publisher:"Springer Nature", count:2, journals:1, period:"2026", certs:[
+    {label:"15 Sep 2026 (2 manuscripts)", base:"2026-09-15_Discover-Artificial-Intelligence_2-manuscripts"}]},
+  {journal:"Scientific Data", publisher:"Springer Nature", count:1, journals:1, period:"2026", certs:[
+    {label:"31 Aug 2026 (1 manuscript)", base:"2026-08-31_Scientific-Data_1-manuscript"}]},
+  {journal:"Economic Analysis and Policy", publisher:"Elsevier", count:1, journals:1, period:"Jun 2025", certs:[
+    {label:"Jun 2025 (1 review)", base:"2025-06_Economic-Analysis-and-Policy_1-review"}]}
+];
+function renderPeer(){
+  var total = 0, jn = 0, pubs = {};
+  PEER.forEach(function(v){ total += v.count; jn += v.journals; pubs[v.publisher] = 1; });
+  document.getElementById("prlead").textContent = "Certified so far: " + total + " manuscript reviews for " + jn + " journals from " + Object.keys(pubs).length +
+    " publishers, 2025 to 2026. Manuscript titles and authors are not listed, in line with journal confidentiality.";
+  var body = document.getElementById("prbody"); body.textContent = "";
+  PEER.forEach(function(v){
+    var tr = el("tr");
+    tr.appendChild(el("td", null, v.journal));
+    tr.appendChild(el("td", null, v.publisher));
+    tr.appendChild(el("td", {"class":"num"}, String(v.count)));
+    tr.appendChild(el("td", null, v.period));
+    var td = el("td");
+    v.certs.forEach(function(c, i){
+      if (i) td.appendChild(document.createTextNode(" · "));
+      td.appendChild(el("a", {href: PR_DIR + c.base + ".pdf"}, c.label));
+    });
+    tr.appendChild(td); body.appendChild(tr);
+  });
+  var more = el("tr");
+  var mc = el("td", {colspan:"5", "class":"na"}); mc.appendChild(el("span", {"class":"ph"}, "More venues to be added"));
+  more.appendChild(mc); body.appendChild(more);
+  var grid = document.getElementById("prgrid"); grid.textContent = "";
+  PEER.forEach(function(v){
+    v.certs.forEach(function(c){
+      var card = el("div", {"class":"card cert"});
+      var a = el("a", {href: PR_DIR + c.base + ".pdf", "aria-label":"Open certificate: " + v.journal + ", " + c.label});
+      var th = el("div", {"class":"thumb contain"});
+      th.appendChild(el("img", {src: PR_DIR + "thumbs/" + c.base + ".jpg", alt:"Reviewer certificate, " + v.journal, loading:"lazy"}));
+      a.appendChild(th); card.appendChild(a);
+      card.appendChild(el("h3", null, v.journal));
+      card.appendChild(el("div", {"class":"meta"}, v.publisher + " · " + c.label));
+      grid.appendChild(card);
+    });
+  });
+}
+/* Automatic: count of peer reviews that publishers have added to the public ORCID record */
+function loadOrcidReviews(){
+  var id = CONFIG.ids.orcid; if (!id) return;
+  fetch("https://pub.orcid.org/v3.0/" + id + "/peer-reviews", {headers:{"Accept":"application/json"}})
+    .then(function(r){ if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+    .then(function(d){
+      var n = 0, groups = 0;
+      (d.group || []).forEach(function(g){
+        groups++;
+        var arr = g["peer-review-summary"] || [];
+        (g["peer-review-group"] || []).forEach(function(pg){ arr = arr.concat(pg["peer-review-summary"] || []); });
+        n += arr.length;
+      });
+      if (n > 0){
+        var note = document.getElementById("prorcid");
+        note.textContent = "Public ORCID record lists " + n + " peer reviews in " + groups + " review groups. ";
+        note.appendChild(el("a", {href:"https://orcid.org/" + id}, "Open ORCID record"));
+      }
+    }).catch(function(){});
+}
+renderPeer(); loadOrcidReviews();
 
 /* ---------- publications ---------- */
 var years = {};
