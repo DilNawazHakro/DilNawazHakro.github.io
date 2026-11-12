@@ -12,7 +12,7 @@
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 Georgia,"Times New Roman",serif; }
-  main { max-width:860px; margin:0 auto; padding:32px 16px 64px; }
+  main { max-width:960px; margin:0 auto; padding:32px 16px 64px; }
   h1 { font-size:2rem; margin:0 0 4px; }
   h2 { font-size:1.15rem; margin:36px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--line); color:var(--accent); }
   .tag { color:var(--mute); margin:0 0 16px; font-size:1.05rem; }
@@ -27,10 +27,19 @@
   .metric .l { color:var(--mute); font-size:.85rem; }
   .src { color:var(--mute); font-size:.82rem; margin:6px 0 0; }
   a { color:var(--accent); }
+  nav { position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line); padding:10px 16px; z-index:5; }
+  nav ul { list-style:none; margin:0 auto; padding:0; max-width:960px; display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.95rem; }
+  nav a { text-decoration:none; }
+  .pub { margin-bottom:10px; }
+  .pub .t { font-weight:bold; }
+  .foot { margin-top:48px; color:var(--mute); font-size:.82rem; border-top:1px solid var(--line); padding-top:12px; }
+  .btn { display:inline-block; margin-top:10px; padding:6px 14px; border:1px solid var(--accent); border-radius:6px; text-decoration:none; font-size:.92rem; }
+  @media print { nav { display:none; } }
   #err { display:none; padding:12px; border:1px solid #c0392b; border-radius:6px; }
 </style>
 </head>
 <body>
+<nav><ul id="menu"></ul></nav>
 <main>
   <div id="err">Could not load data.json. Make sure it is uploaded in the same folder as index.html.</div>
   <header>
@@ -43,8 +52,10 @@
   <section id="s-roles"><h2>Roles</h2><div id="roles"></div></section>
   <section id="s-interests"><h2>Research interests</h2><ul class="chips" id="interests"></ul></section>
   <section id="s-projects"><h2>Projects</h2><div id="projects"></div></section>
+  <section id="s-pubs"><h2>Selected publications</h2><div id="pubs"></div></section>
   <section id="s-gs"><h2>Google Scholar</h2><div class="grid" id="gs"></div><p class="src" id="gs-src"></p></section>
   <section id="s-wos"><h2>Web of Science</h2><div class="grid" id="wos"></div><p class="src" id="wos-src"></p></section>
+  <p class="foot" id="foot"></p>
 </main>
 
 <script>
@@ -112,13 +123,32 @@ fetch('data.json', { cache: 'no-cache' })
     });
     if (!(d.projects || []).length) hide('s-projects');
 
+    const pubs = document.getElementById('pubs');
+    (d.publications || []).forEach(p => {
+      const c = el('div', 'card pub');
+      c.append(el('div', 't', p.title));
+      c.append(el('span', null, [p.authors, p.venue, p.year].filter(has).join(' · ')));
+      if (has(p.doi)) {
+        c.append(document.createElement('br'));
+        const a = el('a', null, 'doi:' + p.doi);
+        a.href = 'https://doi.org/' + encodeURIComponent(p.doi).replace(/%2F/g, '/'); a.rel = 'noopener';
+        c.append(a);
+      }
+      pubs.append(c);
+    });
+    if (!(d.publications || []).length) hide('s-pubs');
+
     const gs = (d.metrics || {}).google_scholar || {};
     const gsEl = document.getElementById('gs');
     metric(gsEl, gs.citations, 'Citations (all)');
     metric(gsEl, gs.citations_since, 'Citations since ' + (gs.since_year || ''));
     metric(gsEl, gs.h_index, 'h-index');
     metric(gsEl, gs.i10_index, 'i10-index');
-    if (!gsEl.children.length) hide('s-gs');
+    if (has(gs.url) && /^https?:\/\//.test(gs.url)) {
+      const a = el('a', 'btn', 'Open Google Scholar profile');
+      a.href = gs.url; a.rel = 'noopener';
+      gsEl.after(a);
+    } else if (!gsEl.children.length) hide('s-gs');
     source(document.getElementById('gs-src'), 'Google Scholar', gs.retrieved, gs.url);
 
     const w = (d.metrics || {}).web_of_science || {};
@@ -135,6 +165,16 @@ fetch('data.json', { cache: 'no-cache' })
     metric(wEl, w.verified_peer_reviews, 'Verified peer reviews');
     if (!wEl.children.length) hide('s-wos');
     source(document.getElementById('wos-src'), 'Web of Science (Clarivate)', w.retrieved, w.url);
+
+    // menu from the visible sections
+    const menu = document.getElementById('menu');
+    document.querySelectorAll('main section').forEach(s => {
+      if (s.style.display === 'none') return;
+      const t = s.querySelector('h2'); if (!t) return;
+      s.id = s.id || 'sec'; const li = el('li'); const a = el('a', null, t.textContent);
+      a.href = '#' + s.id; li.append(a); menu.append(li);
+    });
+    if (has(d.last_updated)) document.getElementById('foot').textContent = 'Last updated: ' + d.last_updated;
   })
   .catch(() => { document.getElementById('err').style.display = 'block'; });
 </script>
