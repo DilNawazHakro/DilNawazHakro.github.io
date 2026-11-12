@@ -110,6 +110,7 @@ ol.pubs a.doi{font-size:.85rem;font-weight:600}
 .cert .meta{font-size:.88rem;color:var(--muted)}
 .cert a.v{font-size:.9rem;font-weight:600}
 
+td.na{color:var(--muted);font-size:.9rem}
 footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
 @media (max-width:640px){
   .hero-grid{grid-template-columns:1fr}
@@ -176,8 +177,8 @@ footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);f
     <div class="metric"><div class="n">39</div><div class="l">PhD and MPhil students supervised</div></div>
     <div class="metric"><div class="n">3</div><div class="l">HEC national research projects won</div></div>
     <div class="metric"><div class="n">~736</div><div class="l">Online certificates</div></div>
-    <div class="metric"><div class="n"><span class="ph">N</span></div><div class="l">Google Scholar citations</div></div>
-    <div class="metric"><div class="n"><span class="ph">N</span></div><div class="l">h-index</div></div>
+    <div class="metric"><div class="n" id="m-cit"><span class="ph">N</span></div><div class="l" id="m-cit-l">Citations</div></div>
+    <div class="metric"><div class="n" id="m-h"><span class="ph">N</span></div><div class="l" id="m-h-l">h-index</div></div>
   </div>
 
   <section id="about">
@@ -194,6 +195,7 @@ footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);f
           <li>Six academic degrees, four of them research degrees</li>
           <li>Completed a second PhD (Management and Commerce) in 2026</li>
           <li>Fully funded PhD scholarships from the Higher Education Commission of Pakistan and the Government of Australia</li>
+          <li>Secured a RO 90,000 research grant under the Strategic Research Projects Program (SRP 2026)</li>
           <li>Senior Member of IEEE</li>
           <li>Won 3 national research projects from the Higher Education Commission of Pakistan and 22 national final-year project grants</li>
           <li>Focal Person, National Grass Root ICT Research Initiative of Pakistan, University of Sindh</li>
@@ -246,12 +248,15 @@ footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);f
   <section id="publications">
     <h2>Publications</h2>
     <p class="lead">89 journal and conference papers plus 2 book chapters, listed as given in my CV. Always-current lists are on my scholarly profiles.</p>
-    <div class="chips" style="margin-bottom:18px">
-      <span class="chip">Google Scholar <span class="ph">link</span></span>
-      <span class="chip">ORCID <span class="ph">link</span></span>
-      <span class="chip">Scopus <span class="ph">link</span></span>
-      <span class="chip">ResearchGate <span class="ph">link</span></span>
+    <div class="chips" id="profilechips" style="margin-bottom:18px"></div>
+    <h3 style="margin:6px 0 10px">Citation metrics</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Source</th><th>Citations</th><th>h-index</th><th>i10-index</th><th>As of</th><th>Update</th></tr></thead>
+        <tbody id="metricsbody"></tbody>
+      </table>
     </div>
+    <p class="count" id="metricsnote" style="margin:8px 0 22px"></p>
     <div class="tools">
       <input id="q" type="search" placeholder="Search title, author, journal or keyword" aria-label="Search publications">
       <select id="ftype" aria-label="Filter by type">
@@ -278,6 +283,7 @@ footer{padding:32px 0 48px;border-top:1px solid var(--line);color:var(--muted);f
   <section id="projects">
     <h2>Projects and Funding</h2>
     <div class="grid">
+      <div class="card"><span class="tag">SRP 2026 · RO 90,000</span><h3>Enhancing individual investor participation in the capital market without increasing behavioral vulnerability and risk</h3><p>Research grant of RO 90,000 under the Strategic Research Projects Program (SRP 2026). Evidence from Sim Invest-Oman, a simulation-based trading platform. Role: Co-Principal Investigator. <span class="ph">Add funder</span></p></div>
       <div class="card"><span class="tag">HEC NRPU 2019</span><h3>Speech recognition for national languages of Pakistan</h3><p>Principal Investigator, NRPU Project 9887, Higher Education Commission of Pakistan.</p></div>
       <div class="card"><span class="tag">HEC NRPU 2019</span><h3>Game design for children with dyslexia and autism</h3><p>Co-Principal Investigator. Multimedia game design framework for cognitive learning.</p></div>
       <div class="card"><span class="tag">Research fund 2021</span><h3>Mir Chakar Khan University Research Fund</h3><p>Co-Principal Investigator, Government of Balochistan.</p></div>
@@ -368,6 +374,105 @@ function el(tag, attrs, text){
 }
 document.getElementById("portrait").src = "data:image/jpeg;base64," + D.img;
 document.getElementById("yr").textContent = new Date().getFullYear();
+
+/* ================= SITE SETTINGS: fill these in ================= */
+var CONFIG = {
+  ids: {
+    orcid: "0000-0001-9532-4013",            // e.g. 0000-0000-0000-0000
+    openalex: "",         // optional, e.g. A5012345678 (if empty, ORCID is used)
+    semanticScholar: "",  // numeric Semantic Scholar author ID
+    scholar: "Xwg811YAAAAJ",          // Google Scholar user ID (the text after user= in your profile link)
+    scopus: "56149185600",           // Scopus Author ID
+    wos: "",              // Web of Science ResearcherID
+    researchgate: "Dil-Hakro",     // profile name as in researchgate.net/profile/NAME
+    loop: "3133101"       // Frontiers Loop profile number
+  },
+  /* Figures typed by hand. Set citations, h and i10 to numbers and asOf to a date such as "12 Nov 2026". */
+  manual: {
+    scholar: {citations: 505, h: 14, i10: 18, asOf: "12 Nov 2026"},
+    scopus:  {citations: 103, h: 6, i10: "n/a", asOf: "12 Nov 2026"},
+    wos:     {citations: null, h: null, i10: null, asOf: ""},
+    researchgate: {citations: 483, h: 13, i10: "n/a", asOf: "12 Nov 2026"}
+  }
+};
+/* ================================================================= */
+
+var auto = {openalex: null, semantic: null, errors: {}, matched: ""};
+function getJSON(url){ return fetch(url).then(function(r){ if (!r.ok) throw new Error(String(r.status)); return r.json(); }); }
+function has(v){ return v !== null && v !== undefined && v !== ""; }
+function today(){ return new Date().toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"}); }
+
+function renderChips(){
+  var I = CONFIG.ids, box = document.getElementById("profilechips"); box.textContent = "";
+  [["Google Scholar", I.scholar && "https://scholar.google.com/citations?user=" + I.scholar],
+   ["ORCID", I.orcid && "https://orcid.org/" + I.orcid],
+   ["Scopus", I.scopus && "https://www.scopus.com/authid/detail.uri?authorId=" + I.scopus],
+   ["Web of Science", I.wos && "https://www.webofscience.com/wos/author/record/" + I.wos],
+   ["ResearchGate", I.researchgate && "https://www.researchgate.net/profile/" + I.researchgate],
+   ["Frontiers Loop", I.loop && "https://loop.frontiersin.org/people/" + I.loop + "/overview"],
+   ["OpenAlex", I.openalex && "https://openalex.org/" + I.openalex]].forEach(function(x){
+    var c = el("span", {"class":"chip"});
+    if (x[1]){ c.appendChild(el("a", {href:x[1]}, x[0])); }
+    else { c.appendChild(document.createTextNode(x[0] + " ")); c.appendChild(el("span", {"class":"ph"}, "ID needed")); }
+    box.appendChild(c);
+  });
+}
+
+function metricRows(){
+  var M = CONFIG.manual, rows = [];
+  ["scholar","scopus","wos","researchgate"].forEach(function(k){
+    var label = {scholar:"Google Scholar", scopus:"Scopus", wos:"Web of Science", researchgate:"ResearchGate"}[k], m = M[k];
+    rows.push({key:k, label:label, cit:m.citations, h:m.h, i10:m.i10, asOf:m.asOf, how:"Manual"});
+  });
+  var o = auto.openalex, s = auto.semantic;
+  rows.push({key:"openalex", label:"OpenAlex", cit:o && o.cited_by_count, h:o && o.summary_stats && o.summary_stats.h_index,
+             i10:o && o.summary_stats && o.summary_stats.i10_index, asOf:o ? today() : "", how:"Automatic", err:auto.errors.openalex});
+  rows.push({key:"semantic", label:"Semantic Scholar", cit:s && s.citationCount, h:s && s.hIndex, i10:null, asOf:s ? today() : "", how:"Automatic", err:auto.errors.semantic});
+  return rows;
+}
+function renderMetrics(){
+  var body = document.getElementById("metricsbody"); body.textContent = "";
+  var rows = metricRows();
+  rows.forEach(function(r){
+    var tr = el("tr");
+    tr.appendChild(el("td", null, r.label));
+    [r.cit, r.h, r.i10].forEach(function(v){
+      var td = el("td", {"class": has(v) ? "num" : "na"}, has(v) ? String(v) : (r.how === "Manual" ? "to be added" : (r.err ? "unavailable" : (has(r.asOf) ? "n/a" : "ID needed"))));
+      tr.appendChild(td);
+    });
+    tr.appendChild(el("td", {"class": has(r.asOf) ? "" : "na"}, has(r.asOf) ? r.asOf : "-"));
+    tr.appendChild(el("td", null, r.how));
+    body.appendChild(tr);
+  });
+  /* headline tiles: prefer Google Scholar, then Scopus, then Web of Science, then OpenAlex */
+  var pick = null;
+  ["scholar","scopus","wos","openalex","semantic"].some(function(k){
+    var r = rows.filter(function(x){ return x.key === k; })[0];
+    if (r && has(r.cit)){ pick = r; return true; } return false;
+  });
+  if (pick){
+    document.getElementById("m-cit").textContent = String(pick.cit);
+    document.getElementById("m-cit-l").textContent = "Citations (" + pick.label + ")";
+    if (has(pick.h)){ document.getElementById("m-h").textContent = String(pick.h); document.getElementById("m-h-l").textContent = "h-index (" + pick.label + ")"; }
+  }
+  var note = "Totals differ between databases because each indexes a different set of publications. Automatic rows refresh each time this page opens.";
+  if (auto.matched) note += " OpenAlex profile matched: " + auto.matched + ".";
+  document.getElementById("metricsnote").textContent = note;
+}
+function loadAuto(){
+  var I = CONFIG.ids, oa = I.openalex ? "authors/" + I.openalex : (I.orcid ? "authors/orcid:" + I.orcid : "");
+  if (oa){
+    getJSON("https://api.openalex.org/" + oa).then(function(d){
+      auto.openalex = d; auto.matched = (d.display_name || "") + " (" + (d.works_count || 0) + " works)"; renderMetrics();
+    }).catch(function(e){ auto.errors.openalex = e.message; renderMetrics(); });
+  }
+  if (I.semanticScholar){
+    getJSON("https://api.semanticscholar.org/graph/v1/author/" + I.semanticScholar + "?fields=name,citationCount,hIndex,paperCount").then(function(d){
+      auto.semantic = d; renderMetrics();
+    }).catch(function(e){ auto.errors.semantic = e.message; renderMetrics(); });
+  }
+}
+renderChips(); renderMetrics(); loadAuto();
 
 /* ---------- publications ---------- */
 var years = {};
